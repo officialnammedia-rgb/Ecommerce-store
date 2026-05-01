@@ -1,0 +1,25 @@
+# deps
+node_modules
+.next
+out
+dist
+
+# env
+.env
+.env.local
+.env.*.local
+
+# db
+*.db
+*.db-journal
+prisma/*.db
+prisma/*.db-journal
+
+# uploads
+public/uploads/*
+!public/uploads/.gitkeep
+
+# misc
+.DS_Store
+*.log
+.vercel
