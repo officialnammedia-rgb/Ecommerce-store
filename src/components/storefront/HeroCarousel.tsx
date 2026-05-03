@@ -44,7 +44,9 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
             key={i}
             className={cn(
               "absolute inset-0 transition-opacity duration-700",
-              i === index ? "opacity-100 z-10" : "opacity-0 z-0",
+              i === index
+                ? "opacity-100 z-10"
+                : "opacity-0 z-0 pointer-events-none",
             )}
             aria-hidden={i !== index}
           >

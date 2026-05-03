@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useMemo } from "react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
@@ -28,12 +29,14 @@ export function CheckoutForm({
   defaultName,
   grandTotal,
   savedAddresses = [],
+  isLoggedIn = false,
 }: {
   providers: Provider[];
   defaultEmail: string;
   defaultName: string;
   grandTotal: number;
   savedAddresses?: SavedAddress[];
+  isLoggedIn?: boolean;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -50,18 +53,63 @@ export function CheckoutForm({
       ? savedAddresses.find((a) => a.id === selectedAddressId)
       : undefined;
 
+  const [saveAddress, setSaveAddress] = useState(true);
+  const [createAccount, setCreateAccount] = useState(false);
+  const [accountPassword, setAccountPassword] = useState("");
+
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     const fd = new FormData(e.currentTarget);
-    const payload: Record<string, string> = {};
+    const payload: Record<string, unknown> = {};
     fd.forEach((v, k) => {
       payload[k] = String(v);
     });
     if (!payload.country) payload.country = "IN";
 
+    const usingSavedAddr = selectedAddressId !== "new" && !!selected;
+    if (usingSavedAddr) payload.savedAddressId = selected!.id;
+
+    // Only forward saveAddress when logged in AND typing a new address.
+    if (isLoggedIn && !usingSavedAddr) payload.saveAddress = saveAddress;
+
+    // Guest who wants to sign up during checkout.
+    const wantsAccount = !isLoggedIn && createAccount && accountPassword.length >= 8;
+
     startTransition(async () => {
       try {
+        // 1) Create + sign in the account first, so the order attaches to the user.
+        if (wantsAccount) {
+          const regRes = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              name: String(payload.fullName ?? "").trim() || "Customer",
+              email: String(payload.email ?? "").trim().toLowerCase(),
+              password: accountPassword,
+            }),
+          });
+          if (!regRes.ok) {
+            const d = await regRes.json().catch(() => ({}));
+            // 409 = email in use. Tell them to uncheck + sign in instead.
+            setError(
+              d.error === "Email already in use"
+                ? "That email is already registered — uncheck the box and sign in before checking out, or use a different email."
+                : d.error ?? "Could not create account",
+            );
+            return;
+          }
+          const signed = await signIn("credentials", {
+            email: String(payload.email).trim().toLowerCase(),
+            password: accountPassword,
+            redirect: false,
+          });
+          if (signed?.error) {
+            setError("Account created, but sign-in failed. You can still place the order as a guest.");
+            return;
+          }
+        }
+
         const res = await fetch("/api/checkout/place", {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -214,9 +262,57 @@ export function CheckoutForm({
                 <Input name="country" defaultValue="IN" required />
               </div>
             </div>
+            {isLoggedIn && (
+              <label className="flex items-center gap-2 text-sm text-neutral-700 pt-1">
+                <input
+                  type="checkbox"
+                  checked={saveAddress}
+                  onChange={(e) => setSaveAddress(e.target.checked)}
+                  className="h-4 w-4"
+                />
+                Save this address to my address book for next time
+              </label>
+            )}
           </>
         )}
       </fieldset>
+
+      {!isLoggedIn && (
+        <fieldset className="space-y-3 bg-white border rounded-lg p-5">
+          <legend className="px-2 font-medium">Speed up next time</legend>
+          <label className="flex items-start gap-2 text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              checked={createAccount}
+              onChange={(e) => setCreateAccount(e.target.checked)}
+              className="h-4 w-4 mt-0.5"
+            />
+            <span>
+              <span className="font-medium">Create an account</span>
+              <span className="block text-xs text-neutral-600">
+                Track orders, save addresses, reorder in 2 clicks.
+              </span>
+            </span>
+          </label>
+          {createAccount && (
+            <div>
+              <label className="text-sm font-medium">Choose a password</label>
+              <Input
+                type="password"
+                autoComplete="new-password"
+                value={accountPassword}
+                onChange={(e) => setAccountPassword(e.target.value)}
+                minLength={8}
+                required={createAccount}
+                placeholder="At least 8 characters"
+              />
+              <p className="mt-1 text-xs text-neutral-500">
+                We&apos;ll use the email above as your sign-in.
+              </p>
+            </div>
+          )}
+        </fieldset>
+      )}
 
       <fieldset className="space-y-2 bg-white border rounded-lg p-5">
         <legend className="px-2 font-medium">Payment</legend>

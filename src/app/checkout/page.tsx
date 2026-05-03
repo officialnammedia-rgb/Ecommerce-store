@@ -24,7 +24,7 @@ export default async function CheckoutPage() {
   const savedAddresses: SavedAddress[] = session?.user?.id
     ? (
         await prisma.address.findMany({
-          where: { userId: session.user.id, type: "SHIPPING" },
+          where: { userId: session.user.id, type: "SHIPPING", savedInBook: true },
           orderBy: [{ isDefault: "desc" }, { updatedAt: "desc" }],
         })
       ).map((a) => ({
@@ -60,6 +60,7 @@ export default async function CheckoutPage() {
           defaultName={session?.user?.name ?? ""}
           grandTotal={grandTotal}
           savedAddresses={savedAddresses}
+          isLoggedIn={!!session?.user?.id}
         />
       </div>
 

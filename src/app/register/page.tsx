@@ -2,19 +2,18 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock, User } from "lucide-react";
+import { Mail, Lock, User, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,23 +31,52 @@ export default function RegisterPage() {
         setLoading(false);
         return;
       }
+      // Show visible success state before navigating so the user can see
+      // the account was created (was previously silent).
+      setSuccess(true);
       const signed = await signIn("credentials", {
-        email,
+        email: email.trim().toLowerCase(),
         password,
         redirect: false,
       });
-      setLoading(false);
       if (signed?.error) {
-        setError("Created, but sign-in failed. Please log in.");
-        router.push("/login");
+        setError("Account created. Redirecting to sign-in...");
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 900);
         return;
       }
-      router.push(signed?.url ?? "/");
-      router.refresh();
+      // Full reload so the server-rendered Header picks up the new session cookie
+      // and shows the logged-in state immediately (router.refresh() can race with
+      // the cookie write on production).
+      setTimeout(() => {
+        window.location.href = "/account";
+      }, 600);
     } catch {
       setLoading(false);
-      setError("Network error");
+      setError("Network error — please try again");
     }
+  }
+
+  if (success) {
+    return (
+      <AuthLayout
+        imageUrl="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=1400&q=80"
+        imageAlt="Welcome to Aurelia"
+        eyebrow="Welcome"
+        headline="You're in."
+        subhead="Taking you to your account..."
+      >
+        <div className="flex flex-col items-center justify-center text-center py-12">
+          <CheckCircle2 className="h-14 w-14 text-emerald-500" />
+          <h1 className="mt-4 text-2xl font-semibold">Account created</h1>
+          <p className="mt-2 text-sm text-neutral-600">
+            Signing you in, hang tight...
+          </p>
+          {error && <p className="mt-4 text-xs text-amber-600">{error}</p>}
+        </div>
+      </AuthLayout>
+    );
   }
 
   return (

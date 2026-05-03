@@ -16,7 +16,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset --force",
     "set-role": "tsx scripts/set-role.ts",
-    "pages:seed": "tsx scripts/seed-pages.ts"
+    "pages:seed": "tsx scripts/seed-pages.ts",
+    "reviews:seed": "tsx scripts/seed-reviews.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -25,6 +26,7 @@
     "@prisma/client": "^5.20.0",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
+    "cloudinary": "^2.10.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.453.0",
     "next": "14.2.15",

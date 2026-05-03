@@ -4,6 +4,7 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Providers } from "@/components/Providers";
 import { CookieConsent } from "@/components/site/CookieConsent";
+import { VisitorPing } from "@/components/site/VisitorPing";
 
 export const metadata: Metadata = {
   title: {
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="flex-1">{children}</main>
           <Footer />
           <CookieConsent />
+          <VisitorPing />
         </Providers>
       </body>
     </html>

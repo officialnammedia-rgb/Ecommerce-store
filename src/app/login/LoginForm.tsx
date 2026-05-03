@@ -2,16 +2,15 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 
 export function LoginForm() {
-  const router = useRouter();
   const search = useSearchParams();
-  const callbackUrl = search.get("callbackUrl") ?? "/";
+  const callbackUrl = search.get("callbackUrl") ?? "/account";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -22,18 +21,20 @@ export function LoginForm() {
     setError(null);
     setLoading(true);
     const res = await signIn("credentials", {
-      email,
+      email: email.trim().toLowerCase(),
       password,
       redirect: false,
       callbackUrl,
     });
-    setLoading(false);
     if (res?.error) {
+      setLoading(false);
       setError("Invalid email or password.");
       return;
     }
-    router.push(res?.url ?? callbackUrl);
-    router.refresh();
+    // Hard navigation so the server-rendered Header (which reads the session)
+    // refreshes with the new cookie on the very next paint. `router.push` +
+    // `router.refresh` can race with the cookie write on production.
+    window.location.href = res?.url ?? callbackUrl;
   }
 
   return (

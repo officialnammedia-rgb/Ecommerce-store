@@ -83,12 +83,29 @@ model Address {
   country    String  @default("IN")
   type       String  @default("SHIPPING") // SHIPPING | BILLING
   isDefault  Boolean @default(false)
+  // true = shown in the user's address book. Order-snapshot clones set this false
+  // so previously-used addresses don't duplicate the book every time.
+  savedInBook Boolean @default(true)
 
   user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   orders Order[] @relation("OrderShippingAddress")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// ---------------- Analytics ----------------
+
+model PageView {
+  id        String   @id @default(cuid())
+  path      String
+  sessionId String   // anonymous visitor cookie
+  userAgent String?
+  referer   String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([sessionId])
 }
 
 // ---------------- Catalog ----------------

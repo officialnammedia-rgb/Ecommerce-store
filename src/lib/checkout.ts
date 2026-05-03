@@ -20,6 +20,10 @@ export const placeOrderSchema = z.object({
   country: z.string().min(2).max(2).default("IN"),
   paymentMethod: z.enum(["COD", "RAZORPAY"]).default("COD"),
   notes: z.string().optional().or(z.literal("")),
+  // Optional: user picked an existing address from their book.
+  savedAddressId: z.string().optional().or(z.literal("")),
+  // Optional: logged-in user wants this (newly typed) address saved to their book.
+  saveAddress: z.boolean().optional(),
 });
 
 export type PlaceOrderInput = z.infer<typeof placeOrderSchema>;
@@ -61,20 +65,57 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
   const session = await getSession();
 
   const order = await prisma.$transaction(async (tx) => {
-    const address = await tx.address.create({
-      data: {
-        userId: session?.user?.id ?? null,
-        fullName: input.fullName,
-        phone: input.phone,
-        line1: input.line1,
-        line2: input.line2 || null,
-        city: input.city,
-        state: input.state,
-        postalCode: input.postalCode,
-        country: input.country || "IN",
-        type: "SHIPPING",
-      },
-    });
+    let addressId: string;
+
+    // If the user picked a saved address, reuse it — DON'T clone, which would
+    // duplicate the row in their address book every time they ordered.
+    if (input.savedAddressId && session?.user?.id) {
+      const existing = await tx.address.findFirst({
+        where: { id: input.savedAddressId, userId: session.user.id },
+        select: { id: true },
+      });
+      if (!existing) throw new Error("Saved address not found");
+      addressId = existing.id;
+    } else {
+      // New address typed into checkout. Only add to the book when the logged-in
+      // user explicitly opted in; otherwise keep it as an order-only snapshot.
+      const shouldSaveToBook = !!(session?.user?.id && input.saveAddress);
+      const created = await tx.address.create({
+        data: {
+          userId: session?.user?.id ?? null,
+          fullName: input.fullName,
+          phone: input.phone,
+          line1: input.line1,
+          line2: input.line2 || null,
+          city: input.city,
+          state: input.state,
+          postalCode: input.postalCode,
+          country: input.country || "IN",
+          type: "SHIPPING",
+          savedInBook: shouldSaveToBook,
+        },
+      });
+      addressId = created.id;
+
+      // First address in book becomes the default.
+      if (shouldSaveToBook) {
+        const hasDefault = await tx.address.count({
+          where: {
+            userId: session.user.id,
+            type: "SHIPPING",
+            savedInBook: true,
+            isDefault: true,
+            id: { not: created.id },
+          },
+        });
+        if (hasDefault === 0) {
+          await tx.address.update({
+            where: { id: created.id },
+            data: { isDefault: true },
+          });
+        }
+      }
+    }
 
     const created = await tx.order.create({
       data: {
@@ -91,7 +132,7 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
         status: "PENDING_PAYMENT",
         paymentStatus: "PENDING",
         paymentMethod: input.paymentMethod,
-        shippingAddressId: address.id,
+        shippingAddressId: addressId,
         notes: input.notes || null,
         couponCode: appliedCode,
         items: {

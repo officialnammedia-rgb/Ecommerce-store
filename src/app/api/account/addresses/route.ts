@@ -21,7 +21,7 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: "Sign in required" }, { status: 401 });
   }
   const addresses = await prisma.address.findMany({
-    where: { userId: session.user.id, type: "SHIPPING" },
+    where: { userId: session.user.id, type: "SHIPPING", savedInBook: true },
     orderBy: [{ isDefault: "desc" }, { updatedAt: "desc" }],
   });
   return NextResponse.json({ ok: true, addresses });
