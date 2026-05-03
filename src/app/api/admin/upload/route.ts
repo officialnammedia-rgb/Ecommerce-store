@@ -49,8 +49,21 @@ export async function POST(req: Request) {
     }
   }
 
-  // Dev fallback — local disk. Will NOT persist on Vercel; that's by design
-  // (forces the admin to configure Cloudinary before going live).
+  // Refuse to fall through to disk on a read-only host (Vercel/serverless).
+  // Either Cloudinary must be configured, or this must be a writable dev host.
+  const isServerless = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+  if (isServerless || process.env.NODE_ENV === "production") {
+    console.error("[upload] Cloudinary not configured in production environment");
+    return NextResponse.json(
+      {
+        error:
+          "Image storage is not configured. Set CLOUDINARY_URL in the deployment environment.",
+      },
+      { status: 500 },
+    );
+  }
+
+  // Dev fallback — local disk only when running on a developer machine.
   await mkdir(UPLOAD_DIR, { recursive: true });
   await writeFile(path.join(UPLOAD_DIR, filename), buffer);
   return NextResponse.json({ url: `/uploads/${filename}`, provider: "local" });
