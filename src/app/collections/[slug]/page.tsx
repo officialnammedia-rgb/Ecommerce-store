@@ -11,7 +11,9 @@ import {
   applyPriceSort,
 } from "@/lib/filters";
 
-export const dynamic = "force-dynamic";
+// ISR: collection listings update when the admin reshuffles products; 60s is
+// plenty for merchandising and keeps pages snappy.
+export const revalidate = 60;
 
 const HEROES: Record<string, { title: string; subtitle: string; image: string }> = {
   all: {

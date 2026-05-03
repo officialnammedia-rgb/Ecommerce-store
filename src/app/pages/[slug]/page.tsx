@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
+// Legal + content pages barely change. Cache them for an hour; admin edits
+// show up after at most 60 min (or an explicit redeploy).
+export const revalidate = 3600;
 
 export default async function StaticPage({ params }: { params: { slug: string } }) {
   const page = await prisma.page.findUnique({ where: { slug: params.slug } });

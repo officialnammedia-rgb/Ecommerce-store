@@ -14,7 +14,10 @@ import { isFavorited } from "@/lib/wishlist";
 import { getSession } from "@/lib/session";
 import { formatINR } from "@/lib/utils";
 
-export const dynamic = "force-dynamic";
+// ISR: cache product pages for 60s. Inventory/reviews lag by at most 1 minute;
+// good enough for a launch-size catalog and massively faster than hitting DB
+// on every visitor click.
+export const revalidate = 60;
 
 export async function generateMetadata({
   params,

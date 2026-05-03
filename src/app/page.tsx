@@ -9,7 +9,10 @@ import { ValueProps } from "@/components/storefront/ValueProps";
 import { LookbookStrip } from "@/components/storefront/LookbookStrip";
 import { Newsletter } from "@/components/storefront/Newsletter";
 
-export const dynamic = "force-dynamic";
+// ISR: rebuild the homepage at most once per minute, serve a cached HTML
+// otherwise. Admin edits show up within 60s. This cuts the visitor's page
+// load from ~1s (cold DB) down to ~100ms (cached HTML from Vercel's edge).
+export const revalidate = 60;
 
 const heroSlides: HeroSlide[] = [
   {
