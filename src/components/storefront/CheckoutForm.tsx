@@ -1,12 +1,33 @@
 "use client";
 
-import { useState, useTransition, useMemo } from "react";
+import { useState, useTransition, useMemo, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { MapPin, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatINR } from "@/lib/utils";
+
+// Address fields can contain letters, numbers, spaces and these common
+// punctuation marks. Strips anything that could be used for HTML/script
+// injection or that's just garbage in a postal address.
+const ADDRESS_ALLOWED = /[^\p{L}\p{N}\s,./\-#'&()]/gu;
+function sanitizeAddress(s: string) {
+  return s.replace(ADDRESS_ALLOWED, "").replace(/\s{2,}/g, " ");
+}
+
+// Indian mobile numbers are 10 digits starting with 6, 7, 8, or 9.
+function isValidIndianMobile10(d: string) {
+  return /^[6-9]\d{9}$/.test(d);
+}
+
+// Extract the last 10 digits from any saved phone string (handles legacy
+// formats like "+919876543210", "9876543210", or even with spaces).
+function toMobile10(s: string | null | undefined): string {
+  const digits = (s ?? "").replace(/\D/g, "");
+  return digits.slice(-10);
+}
 
 type Provider = { id: string; label: string };
 
@@ -57,6 +78,109 @@ export function CheckoutForm({
   const [createAccount, setCreateAccount] = useState(false);
   const [accountPassword, setAccountPassword] = useState("");
 
+  // Controlled fields for the "new address" path. Saved-address path uses
+  // hidden inputs populated from the chosen `selected` object.
+  const [phone10, setPhone10] = useState<string>(toMobile10(selected?.phone) || "");
+  const [line1, setLine1] = useState("");
+  const [line2, setLine2] = useState("");
+  const [city, setCity] = useState("");
+  const [stateName, setStateName] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+
+  // When the user toggles between saved addresses, refresh the local 10-digit
+  // phone slice so the visible value matches the picked address.
+  useEffect(() => {
+    setPhone10(toMobile10(selected?.phone) || "");
+  }, [selected?.phone]);
+
+  const phoneValid = phone10.length === 0 || isValidIndianMobile10(phone10);
+
+  // Pincode auto-lookup. Hits the public Indian Postal API at
+  // api.postalpincode.in — free, no key, returns the office list for a PIN.
+  // We pull City + State from the first record.
+  const [pincodeStatus, setPincodeStatus] = useState<
+    "idle" | "loading" | "ok" | "error"
+  >("idle");
+  const [pincodeError, setPincodeError] = useState<string | null>(null);
+
+  async function lookupPincode(pin: string) {
+    if (!/^\d{6}$/.test(pin)) return;
+    setPincodeStatus("loading");
+    setPincodeError(null);
+    try {
+      const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+      const data = await res.json();
+      const entry = Array.isArray(data) ? data[0] : null;
+      if (!entry || entry.Status !== "Success" || !entry.PostOffice?.length) {
+        setPincodeStatus("error");
+        setPincodeError("Could not find this PIN code. Please check and try again.");
+        return;
+      }
+      const office = entry.PostOffice[0];
+      setCity((prev) => prev || office.District || office.Block || "");
+      setStateName((prev) => prev || office.State || "");
+      setPincodeStatus("ok");
+    } catch {
+      setPincodeStatus("error");
+      setPincodeError("Could not verify PIN code. Please fill city/state manually.");
+    }
+  }
+
+  // Geolocation -> reverse geocode via OpenStreetMap Nominatim (free, no key).
+  // Asks for user permission, gets coords, fills as many fields as possible.
+  const [locStatus, setLocStatus] = useState<
+    "idle" | "loading" | "ok" | "error"
+  >("idle");
+  const [locError, setLocError] = useState<string | null>(null);
+
+  function detectLocation() {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setLocStatus("error");
+      setLocError("Your browser does not support location detection.");
+      return;
+    }
+    setLocStatus("loading");
+    setLocError(null);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`;
+          const res = await fetch(url, {
+            headers: { Accept: "application/json" },
+          });
+          const data = await res.json();
+          const a = data?.address ?? {};
+          const street = [a.house_number, a.road, a.neighbourhood, a.suburb]
+            .filter(Boolean)
+            .join(", ");
+          const detectedCity = a.city || a.town || a.village || a.county || "";
+          const detectedState = a.state || "";
+          const detectedPin = a.postcode || "";
+          if (street) setLine1(sanitizeAddress(street));
+          if (detectedCity) setCity(sanitizeAddress(detectedCity));
+          if (detectedState) setStateName(sanitizeAddress(detectedState));
+          if (detectedPin) {
+            setPostalCode(detectedPin.replace(/\D/g, "").slice(0, 6));
+          }
+          setLocStatus("ok");
+        } catch {
+          setLocStatus("error");
+          setLocError("Could not look up your address. Please fill it manually.");
+        }
+      },
+      (err) => {
+        setLocStatus("error");
+        setLocError(
+          err.code === err.PERMISSION_DENIED
+            ? "Location permission denied. You can fill the address manually."
+            : "Could not get your location. Please fill the address manually.",
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    );
+  }
+
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
@@ -69,6 +193,37 @@ export function CheckoutForm({
 
     const usingSavedAddr = selectedAddressId !== "new" && !!selected;
     if (usingSavedAddr) payload.savedAddressId = selected!.id;
+
+    // Compose the final phone as +91XXXXXXXXXX. For saved-address path the
+    // selected.phone already contains a stored value; we still normalise to
+    // ensure it ends up in +91 format so backend always sees a consistent shape.
+    const sourcePhone = usingSavedAddr ? toMobile10(selected!.phone) : phone10;
+    if (!isValidIndianMobile10(sourcePhone)) {
+      setError("Please enter a valid 10-digit Indian mobile number.");
+      return;
+    }
+    payload.phone = `+91${sourcePhone}`;
+
+    // For the new-address path, push controlled values into the payload
+    // (FormData already has them since the inputs are controlled with `name`,
+    // but we set them explicitly so a stale browser autofill never wins).
+    if (!usingSavedAddr) {
+      const cleanLine1 = sanitizeAddress(line1).trim();
+      const cleanLine2 = sanitizeAddress(line2).trim();
+      if (!cleanLine1) {
+        setError("Please enter your street address.");
+        return;
+      }
+      if (!/^\d{6}$/.test(postalCode)) {
+        setError("PIN code must be 6 digits.");
+        return;
+      }
+      payload.line1 = cleanLine1;
+      payload.line2 = cleanLine2;
+      payload.city = sanitizeAddress(city).trim();
+      payload.state = sanitizeAddress(stateName).trim();
+      payload.postalCode = postalCode;
+    }
 
     // Only forward saveAddress when logged in AND typing a new address.
     if (isLoggedIn && !usingSavedAddr) payload.saveAddress = saveAddress;
@@ -141,13 +296,28 @@ export function CheckoutForm({
         </div>
         <div>
           <label className="text-sm font-medium">Phone</label>
-          <Input
-            name="phone"
-            required
-            placeholder="9876543210"
-            defaultValue={selected?.phone ?? ""}
-            key={`phone-${selectedAddressId}`}
-          />
+          <div className="mt-1 flex rounded-md shadow-sm">
+            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-neutral-300 bg-neutral-50 text-neutral-600 text-sm">
+              +91
+            </span>
+            <input
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel-national"
+              required
+              maxLength={10}
+              pattern="[6-9][0-9]{9}"
+              placeholder="9876543210"
+              value={phone10}
+              onChange={(e) => setPhone10(e.target.value.replace(/\D/g, "").slice(0, 10))}
+              className="flex-1 min-w-0 rounded-r-md border border-neutral-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900/10"
+            />
+          </div>
+          {phone10.length > 0 && !phoneValid && (
+            <p className="mt-1 text-xs text-red-600">
+              Indian mobile numbers must be 10 digits and start with 6, 7, 8, or 9.
+            </p>
+          )}
         </div>
       </fieldset>
 
@@ -234,34 +404,110 @@ export function CheckoutForm({
           </>
         ) : (
           <>
+            {/* Use my location — fastest path on mobile. Asks for browser
+                permission, reverse-geocodes, fills in line1 / city / state /
+                pincode. Always editable afterwards. */}
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={detectLocation}
+                disabled={locStatus === "loading"}
+                className="inline-flex items-center gap-1.5 text-sm rounded-md border border-neutral-300 px-3 py-1.5 hover:bg-neutral-50 disabled:opacity-60"
+              >
+                {locStatus === "loading" ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <MapPin className="h-3.5 w-3.5" />
+                )}
+                Use my current location
+              </button>
+              {locStatus === "ok" && (
+                <span className="text-xs text-emerald-700">Location filled in — review and edit if needed.</span>
+              )}
+              {locStatus === "error" && locError && (
+                <span className="text-xs text-red-600">{locError}</span>
+              )}
+            </div>
+
             <div>
               <label className="text-sm font-medium">Address line 1</label>
-              <Input name="line1" required />
+              <Input
+                name="line1"
+                required
+                value={line1}
+                onChange={(e) => setLine1(sanitizeAddress(e.target.value))}
+                placeholder="House / flat no., street, area"
+              />
             </div>
             <div>
               <label className="text-sm font-medium">Address line 2 (optional)</label>
-              <Input name="line2" />
+              <Input
+                name="line2"
+                value={line2}
+                onChange={(e) => setLine2(sanitizeAddress(e.target.value))}
+                placeholder="Landmark, apartment, etc."
+              />
             </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-sm font-medium">City</label>
-                <Input name="city" required />
-              </div>
-              <div>
-                <label className="text-sm font-medium">State</label>
-                <Input name="state" required />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-sm font-medium">Postal code</label>
-                <Input name="postalCode" required />
+                <label className="text-sm font-medium">PIN code</label>
+                <Input
+                  name="postalCode"
+                  required
+                  inputMode="numeric"
+                  maxLength={6}
+                  pattern="[0-9]{6}"
+                  placeholder="560001"
+                  value={postalCode}
+                  onChange={(e) => {
+                    const next = e.target.value.replace(/\D/g, "").slice(0, 6);
+                    setPostalCode(next);
+                    if (next.length === 6) {
+                      void lookupPincode(next);
+                    } else {
+                      setPincodeStatus("idle");
+                      setPincodeError(null);
+                    }
+                  }}
+                />
+                {pincodeStatus === "loading" && (
+                  <p className="mt-1 text-xs text-neutral-500">Looking up…</p>
+                )}
+                {pincodeStatus === "ok" && (
+                  <p className="mt-1 text-xs text-emerald-700">Found — city &amp; state filled.</p>
+                )}
+                {pincodeStatus === "error" && pincodeError && (
+                  <p className="mt-1 text-xs text-red-600">{pincodeError}</p>
+                )}
               </div>
               <div>
                 <label className="text-sm font-medium">Country</label>
-                <Input name="country" defaultValue="IN" required />
+                <Input name="country" defaultValue="IN" required readOnly />
               </div>
             </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium">City</label>
+                <Input
+                  name="city"
+                  required
+                  value={city}
+                  onChange={(e) => setCity(sanitizeAddress(e.target.value))}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">State</label>
+                <Input
+                  name="state"
+                  required
+                  value={stateName}
+                  onChange={(e) => setStateName(sanitizeAddress(e.target.value))}
+                />
+              </div>
+            </div>
+
             {isLoggedIn && (
               <label className="flex items-center gap-2 text-sm text-neutral-700 pt-1">
                 <input

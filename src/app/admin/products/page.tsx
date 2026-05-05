@@ -23,8 +23,8 @@ export default async function AdminProductsPage() {
         </Link>
       </div>
 
-      <div className="mt-6 bg-white rounded-lg border border-neutral-200 overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="mt-6 bg-white rounded-lg border border-neutral-200 overflow-x-auto">
+        <table className="w-full text-sm min-w-[720px]">
           <thead className="bg-neutral-50 text-neutral-500">
             <tr>
               <th className="text-left px-4 py-3">Product</th>

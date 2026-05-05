@@ -51,8 +51,8 @@ export default async function AdminReturnsPage() {
         </span>
       </div>
 
-      <div className="mt-6 bg-white border rounded-lg overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="mt-6 bg-white border rounded-lg overflow-x-auto">
+        <table className="w-full text-sm min-w-[720px]">
           <thead className="bg-neutral-50 text-neutral-500 text-left">
             <tr>
               <th className="px-4 py-3">Order</th>

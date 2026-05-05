@@ -99,8 +99,8 @@ export default async function EditProductPage({ params }: { params: { id: string
 
       <div className="mt-8">
         <h2 className="text-xl font-semibold">Variants</h2>
-        <div className="mt-3 bg-white border rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="mt-3 bg-white border rounded-lg overflow-x-auto">
+          <table className="w-full text-sm min-w-[640px]">
             <thead className="bg-neutral-50 text-neutral-500">
               <tr>
                 <th className="px-4 py-3 text-left">SKU</th>
@@ -120,7 +120,9 @@ export default async function EditProductPage({ params }: { params: { id: string
                   .join(" / ");
                 return (
                   <tr key={v.id}>
-                    <td className="px-4 py-3 align-top font-mono text-xs">{v.sku}</td>
+                    <td className="px-4 py-3 align-top font-mono text-xs break-all max-w-[220px]">
+                      {v.sku}
+                    </td>
                     <td className="px-4 py-3 align-top">{opts || "—"}</td>
                     <td className="px-4 py-3" colSpan={4}>
                       <form action={update} className="flex items-center gap-3 justify-end">
