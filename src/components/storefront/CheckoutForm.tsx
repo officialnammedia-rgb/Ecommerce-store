@@ -126,12 +126,97 @@ export function CheckoutForm({
     }
   }
 
-  // Geolocation -> reverse geocode via OpenStreetMap Nominatim (free, no key).
-  // Asks for user permission, gets coords, fills as many fields as possible.
+  // Geolocation + reverse geocoding. We try multiple providers in order
+  // because Indian street-level data is patchy on free APIs:
+  //   1. BigDataCloud reverse-geocode-client (no key, better India data)
+  //   2. OpenStreetMap Nominatim                (no key, fallback)
+  // Whichever gives us a PIN code, we then re-resolve the PIN against
+  // api.postalpincode.in (government data) to get authoritative city/state.
   const [locStatus, setLocStatus] = useState<
     "idle" | "loading" | "ok" | "error"
   >("idle");
   const [locError, setLocError] = useState<string | null>(null);
+  const [locAccuracy, setLocAccuracy] = useState<number | null>(null);
+
+  type GeoFields = {
+    line1: string;
+    city: string;
+    state: string;
+    pin: string;
+  };
+
+  async function reverseGeocodeBigDataCloud(
+    lat: number,
+    lon: number,
+  ): Promise<GeoFields | null> {
+    try {
+      const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      const d = await res.json();
+      // BigDataCloud has rich `localityInfo.administrative` levels in India:
+      //   level 4 = state, level 6 = district, level 8 = sub-district, etc.
+      const admin: Array<{ adminLevel: number; name: string }> =
+        d?.localityInfo?.administrative ?? [];
+      const findLevel = (n: number) =>
+        admin.find((x) => x.adminLevel === n)?.name ?? "";
+      const street = [
+        d?.localityInfo?.informative?.[0]?.name,
+        d?.locality,
+      ]
+        .filter(Boolean)
+        .join(", ");
+      return {
+        line1: street || "",
+        city: d?.city || d?.locality || findLevel(6) || "",
+        state: d?.principalSubdivision || findLevel(4) || "",
+        pin: (d?.postcode || "").toString(),
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  async function reverseGeocodeNominatim(
+    lat: number,
+    lon: number,
+  ): Promise<GeoFields | null> {
+    try {
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
+      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      if (!res.ok) return null;
+      const data = await res.json();
+      const a = data?.address ?? {};
+      const street = [a.house_number, a.road, a.neighbourhood, a.suburb]
+        .filter(Boolean)
+        .join(", ");
+      return {
+        line1: street || "",
+        city: a.city || a.town || a.village || a.county || "",
+        state: a.state || "",
+        pin: (a.postcode || "").toString(),
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  // Fetch authoritative city/state from the Indian Post API given a PIN.
+  async function pinToCityState(pin: string): Promise<{ city: string; state: string } | null> {
+    try {
+      const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+      const data = await res.json();
+      const entry = Array.isArray(data) ? data[0] : null;
+      const office = entry?.PostOffice?.[0];
+      if (!office) return null;
+      return {
+        city: office.District || office.Block || "",
+        state: office.State || "",
+      };
+    } catch {
+      return null;
+    }
+  }
 
   function detectLocation() {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
@@ -141,43 +226,54 @@ export function CheckoutForm({
     }
     setLocStatus("loading");
     setLocError(null);
+    setLocAccuracy(null);
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
-        try {
-          const { latitude, longitude } = pos.coords;
-          const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`;
-          const res = await fetch(url, {
-            headers: { Accept: "application/json" },
-          });
-          const data = await res.json();
-          const a = data?.address ?? {};
-          const street = [a.house_number, a.road, a.neighbourhood, a.suburb]
-            .filter(Boolean)
-            .join(", ");
-          const detectedCity = a.city || a.town || a.village || a.county || "";
-          const detectedState = a.state || "";
-          const detectedPin = a.postcode || "";
-          if (street) setLine1(sanitizeAddress(street));
-          if (detectedCity) setCity(sanitizeAddress(detectedCity));
-          if (detectedState) setStateName(sanitizeAddress(detectedState));
-          if (detectedPin) {
-            setPostalCode(detectedPin.replace(/\D/g, "").slice(0, 6));
-          }
-          setLocStatus("ok");
-        } catch {
+        const { latitude, longitude, accuracy } = pos.coords;
+        setLocAccuracy(accuracy ?? null);
+
+        // 1. Primary: BigDataCloud (better India data), 2. Fallback: Nominatim
+        const result =
+          (await reverseGeocodeBigDataCloud(latitude, longitude)) ??
+          (await reverseGeocodeNominatim(latitude, longitude));
+
+        if (!result) {
           setLocStatus("error");
           setLocError("Could not look up your address. Please fill it manually.");
+          return;
         }
+
+        // 3. If we got a PIN, ask the post office API for authoritative city/state
+        const cleanPin = result.pin.replace(/\D/g, "").slice(0, 6);
+        let resolvedCity = result.city;
+        let resolvedState = result.state;
+        if (/^\d{6}$/.test(cleanPin)) {
+          const fromPin = await pinToCityState(cleanPin);
+          if (fromPin) {
+            resolvedCity = fromPin.city || resolvedCity;
+            resolvedState = fromPin.state || resolvedState;
+            setPincodeStatus("ok");
+          }
+        }
+
+        if (result.line1) setLine1(sanitizeAddress(result.line1));
+        if (resolvedCity) setCity(sanitizeAddress(resolvedCity));
+        if (resolvedState) setStateName(sanitizeAddress(resolvedState));
+        if (cleanPin) setPostalCode(cleanPin);
+        setLocStatus("ok");
       },
       (err) => {
         setLocStatus("error");
         setLocError(
           err.code === err.PERMISSION_DENIED
             ? "Location permission denied. You can fill the address manually."
-            : "Could not get your location. Please fill the address manually.",
+            : err.code === err.TIMEOUT
+              ? "Location request timed out. Try again or fill manually."
+              : "Could not get your location. Please fill the address manually.",
         );
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+      // High accuracy + no cached fix + generous timeout for slow GPS lock.
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
     );
   }
 
@@ -407,26 +503,55 @@ export function CheckoutForm({
             {/* Use my location — fastest path on mobile. Asks for browser
                 permission, reverse-geocodes, fills in line1 / city / state /
                 pincode. Always editable afterwards. */}
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={detectLocation}
-                disabled={locStatus === "loading"}
-                className="inline-flex items-center gap-1.5 text-sm rounded-md border border-neutral-300 px-3 py-1.5 hover:bg-neutral-50 disabled:opacity-60"
-              >
-                {locStatus === "loading" ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <MapPin className="h-3.5 w-3.5" />
+            <div className="rounded-md bg-neutral-50 border border-neutral-200 p-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={detectLocation}
+                  disabled={locStatus === "loading"}
+                  className="inline-flex items-center gap-1.5 text-sm rounded-md border border-neutral-300 bg-white px-3 py-1.5 hover:bg-neutral-100 disabled:opacity-60"
+                >
+                  {locStatus === "loading" ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <MapPin className="h-3.5 w-3.5" />
+                  )}
+                  {locStatus === "ok" ? "Detect again" : "Use my current location"}
+                </button>
+                {locStatus === "loading" && (
+                  <span className="text-xs text-neutral-500">
+                    Getting your location…
+                  </span>
                 )}
-                Use my current location
-              </button>
+                {locStatus === "ok" && locAccuracy !== null && (
+                  <span className="text-xs text-neutral-600">
+                    Accuracy ±{Math.round(locAccuracy)} m
+                  </span>
+                )}
+              </div>
+
               {locStatus === "ok" && (
-                <span className="text-xs text-emerald-700">Location filled in — review and edit if needed.</span>
+                <p className="mt-2 text-xs text-amber-700">
+                  ⚠ Auto-detected addresses can be approximate. Please verify the
+                  street, area and PIN code below before placing your order.
+                </p>
               )}
+              {locStatus === "ok" &&
+                locAccuracy !== null &&
+                locAccuracy > 500 && (
+                  <p className="mt-1 text-xs text-amber-700">
+                    Your GPS signal looks weak (±{Math.round(locAccuracy)} m). For
+                    a more accurate fix, enable GPS / Wi-Fi and try again, or fill
+                    the address manually.
+                  </p>
+                )}
               {locStatus === "error" && locError && (
-                <span className="text-xs text-red-600">{locError}</span>
+                <p className="mt-2 text-xs text-red-600">{locError}</p>
               )}
+              <p className="mt-1 text-[11px] text-neutral-500">
+                Tip: on mobile, allow precise location and step outside or near a
+                window for best GPS accuracy.
+              </p>
             </div>
 
             <div>
