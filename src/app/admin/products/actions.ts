@@ -190,6 +190,70 @@ export async function deleteProductAction(productId: string) {
   redirect("/admin/products");
 }
 
+// ---------------- Bulk actions ----------------
+
+const bulkIdsSchema = z
+  .array(z.string().min(1))
+  .min(1, "Select at least one product")
+  .max(1000, "Too many products selected");
+
+const bulkStatusSchema = z.object({
+  productIds: bulkIdsSchema,
+  status: z.enum(["DRAFT", "ACTIVE", "ARCHIVED"]),
+});
+
+export async function bulkUpdateProductStatusAction(
+  productIds: string[],
+  status: "DRAFT" | "ACTIVE" | "ARCHIVED",
+): Promise<{ count: number }> {
+  const session = await requireAdmin();
+  const parsed = bulkStatusSchema.safeParse({ productIds, status });
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues.map((i) => i.message).join(", "));
+  }
+  const result = await prisma.product.updateMany({
+    where: { id: { in: parsed.data.productIds } },
+    data: { status: parsed.data.status },
+  });
+  await audit({
+    actorId: session.user.id,
+    action: "product.bulkStatus",
+    entity: "Product",
+    metadata: {
+      count: result.count,
+      status: parsed.data.status,
+      // cap the IDs we audit to keep metadata small
+      sampleIds: parsed.data.productIds.slice(0, 50),
+    },
+  });
+  revalidatePath("/admin/products");
+  return { count: result.count };
+}
+
+export async function bulkDeleteProductsAction(
+  productIds: string[],
+): Promise<{ count: number }> {
+  const session = await requireAdmin();
+  const parsed = bulkIdsSchema.safeParse(productIds);
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues.map((i) => i.message).join(", "));
+  }
+  const result = await prisma.product.deleteMany({
+    where: { id: { in: parsed.data } },
+  });
+  await audit({
+    actorId: session.user.id,
+    action: "product.bulkDelete",
+    entity: "Product",
+    metadata: {
+      count: result.count,
+      sampleIds: parsed.data.slice(0, 50),
+    },
+  });
+  revalidatePath("/admin/products");
+  return { count: result.count };
+}
+
 export async function updateVariantAction(variantId: string, formData: FormData) {
   await requireAdmin();
   const priceRupees = Number(formData.get("priceRupees"));
