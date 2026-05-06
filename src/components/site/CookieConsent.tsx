@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { X } from "lucide-react";
 
-const STORAGE_KEY = "aurelia_cookie_consent_v1";
+const STORAGE_KEY = "ascendyl_cookie_consent_v1";
 
 export function CookieConsent() {
   const [show, setShow] = useState(false);

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Instagram, Facebook, Twitter, Youtube } from "lucide-react";
 
 const COLS: { title: string; links: { label: string; href: string }[] }[] = [
   {
@@ -43,7 +42,7 @@ const COLS: { title: string; links: { label: string; href: string }[] }[] = [
 ];
 
 export function Footer() {
-  const storeName = process.env.STORE_NAME ?? "Aurelia";
+  const storeName = process.env.STORE_NAME ?? "Ascendyl";
   return (
     <footer className="bg-neutral-950 text-neutral-300 mt-12">
       <div className="container py-14 grid grid-cols-2 md:grid-cols-6 gap-8">
@@ -54,11 +53,16 @@ export function Footer() {
           <p className="mt-3 text-sm text-neutral-400 max-w-xs">
             Considered, everyday clothing — designed in India, made to move with you.
           </p>
-          <div className="mt-5 flex items-center gap-3">
-            <SocialLink href="https://instagram.com" icon={Instagram} label="Instagram" />
-            <SocialLink href="https://facebook.com" icon={Facebook} label="Facebook" />
-            <SocialLink href="https://twitter.com" icon={Twitter} label="Twitter" />
-            <SocialLink href="https://youtube.com" icon={Youtube} label="YouTube" />
+          <div className="mt-5 space-y-2 text-xs text-neutral-400">
+            <p className="font-semibold text-neutral-300">Contact us:</p>
+            <p>Email: Ascendyl204@gmail.com</p>
+            <p>Phone: +91 7037638457</p>
+            <p className="mt-3 text-[11px] leading-relaxed">
+              Office No 206, Plot No 1, 2nd Floor<br />
+              Ambar Tower, Naniwala Bagh<br />
+              Azadpur, North West Delhi<br />
+              Delhi - 110033
+            </p>
           </div>
         </div>
 
@@ -100,28 +104,6 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  );
-}
-
-function SocialLink({
-  href,
-  icon: Icon,
-  label,
-}: {
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={label}
-      className="h-9 w-9 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition"
-    >
-      <Icon className="h-4 w-4" />
-    </a>
   );
 }
 

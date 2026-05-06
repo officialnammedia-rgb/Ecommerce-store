@@ -161,7 +161,7 @@ export async function placeOrderAction(formData: FormData) {
 
   if (appliedCode) {
     await consumeDiscount(appliedCode);
-    cookies().delete("aurelia_coupon");
+    cookies().delete("ascendyl_coupon");
   }
 
   revalidatePath("/", "layout");

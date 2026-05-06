@@ -4,10 +4,10 @@
  */
 import { prisma } from "../src/lib/prisma";
 
-const STORE_NAME = process.env.STORE_NAME ?? "Aurelia";
-const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL ?? "support@aurelia.test";
+const STORE_NAME = process.env.STORE_NAME ?? "Ascendyl";
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL ?? "support@ascendyl.test";
 const COMPANY_ADDR =
-  process.env.STORE_ADDRESS ?? "Aurelia Retail Pvt. Ltd., Mumbai, Maharashtra 400001, India";
+  process.env.STORE_ADDRESS ?? "Ascendyl Retail Pvt. Ltd., Mumbai, Maharashtra 400001, India";
 
 const PAGES: { slug: string; title: string; body: string }[] = [
   {
@@ -38,7 +38,7 @@ Phone: +91 22 1234 5678 (Mon–Sat, 10:00 – 18:00 IST)
 WhatsApp: +91 99999 88888 (chat only)
 
 Wholesale & press
-Email: hello@aurelia.test
+Email: hello@ascendyl.test
 
 Registered office
 ${COMPANY_ADDR}
@@ -264,9 +264,9 @@ ${SUPPORT_EMAIL} · ${COMPANY_ADDR}`,
 
 Strictly necessary
 • Session cookies for sign-in
-• Cart token (aurelia_guest_cart)
-• Coupon application (aurelia_coupon)
-• Wishlist (aurelia_favs)
+• Cart token (ascendyl_guest_cart)
+• Coupon application (ascendyl_coupon)
+• Wishlist (ascendyl_favs)
 These cannot be turned off — the Site won't work without them.
 
 Performance & analytics
@@ -346,7 +346,7 @@ Open roles
 • Backend engineer — remote (India)
 
 How to apply
-Email careers@aurelia.test with your CV and a short note on why you're a fit. We respond to every application within 2 weeks.
+Email careers@ascendyl.test with your CV and a short note on why you're a fit. We respond to every application within 2 weeks.
 
 What we offer
 • Competitive salary + ESOPs from day one
@@ -358,14 +358,14 @@ What we offer
   {
     slug: "press",
     title: "Press",
-    body: `For press inquiries, partnerships, and image requests, contact press@aurelia.test.
+    body: `For press inquiries, partnerships, and image requests, contact press@ascendyl.test.
 
 Press kit available on request: logo files (SVG/PNG), founder photos, lookbook, brand story.
 
 Recent features
 • Vogue India — "The new wave of homegrown labels" (2025)
 • ELLE — "Stylish minimalism, made in India" (2025)
-• YourStory — "Aurelia's lean approach to D2C apparel" (2024)`,
+• YourStory — "Ascendyl's lean approach to D2C apparel" (2024)`,
   },
 ];
 

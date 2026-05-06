@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const adminEmail = "admin@aurelia.test";
+  const adminEmail = "admin@ascendyl.test";
   const adminPassword = "admin123"; // change after first login
 
   const admin = await prisma.user.upsert({
@@ -152,8 +152,8 @@ async function main() {
 
   await prisma.setting.upsert({
     where: { key: "store.name" },
-    update: { value: process.env.STORE_NAME ?? "Aurelia" },
-    create: { key: "store.name", value: process.env.STORE_NAME ?? "Aurelia" },
+    update: { value: process.env.STORE_NAME ?? "Ascendyl" },
+    create: { key: "store.name", value: process.env.STORE_NAME ?? "Ascendyl" },
   });
 
   await prisma.page.upsert({

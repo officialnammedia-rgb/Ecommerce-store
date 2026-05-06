@@ -1,4 +1,4 @@
-# Aurelia — Clothing E‑commerce (India)
+# Ascendyl — Clothing E‑commerce (India)
 
 A production-style clothing storefront with admin panel, built for the Indian market.
 
@@ -20,7 +20,7 @@ After seeding:
 
 - **Storefront**: http://localhost:3000
 - **Admin**: http://localhost:3000/admin
-- **Default admin**: `admin@aurelia.test` / `admin123` (change after first login)
+- **Default admin**: `admin@ascendyl.test` / `admin123` (change after first login)
 
 ## Features
 

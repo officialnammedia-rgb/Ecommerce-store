@@ -62,7 +62,7 @@ export default function RegisterPage() {
     return (
       <AuthLayout
         imageUrl="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=1400&q=80"
-        imageAlt="Welcome to Aurelia"
+        imageAlt="Welcome to Ascendyl"
         eyebrow="Welcome"
         headline="You're in."
         subhead="Taking you to your account..."
@@ -82,8 +82,8 @@ export default function RegisterPage() {
   return (
     <AuthLayout
       imageUrl="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=1400&q=80"
-      imageAlt="Join Aurelia"
-      eyebrow="Join Aurelia"
+      imageAlt="Join Ascendyl"
+      eyebrow="Join Ascendyl"
       headline="Members get more."
       subhead="Save your wishlist, track orders, and unlock 10% off your first purchase."
     >

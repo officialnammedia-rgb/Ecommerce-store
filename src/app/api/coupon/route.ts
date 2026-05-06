@@ -4,7 +4,7 @@ import { z } from "zod";
 import { getOrCreateCart, cartTotals } from "@/lib/cart";
 import { validateAndComputeDiscount } from "@/lib/discounts";
 
-const COOKIE = "aurelia_coupon";
+const COOKIE = "ascendyl_coupon";
 const schema = z.object({ code: z.string().min(1).max(60) });
 
 export async function POST(req: Request) {

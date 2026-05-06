@@ -47,7 +47,7 @@ export function LoginForm() {
     >
       <h1 className="text-3xl font-semibold">Sign in</h1>
       <p className="text-sm text-neutral-600 mt-1">
-        New to Aurelia?{" "}
+        New to Ascendyl?{" "}
         <Link href="/register" className="font-medium text-brand-accent hover:underline">
           Create an account
         </Link>

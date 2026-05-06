@@ -24,7 +24,7 @@ export function AuthLayout({
         <div className="absolute inset-0 bg-gradient-to-tr from-black/70 via-black/30 to-transparent" />
         <div className="absolute inset-0 p-12 flex flex-col justify-end text-white">
           <Link href="/" className="text-2xl font-bold tracking-tight self-start">
-            Aurelia
+            Ascendyl
           </Link>
           <div className="mt-auto max-w-md">
             <p className="text-xs uppercase tracking-[0.25em] text-white/70">{eyebrow}</p>

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { z } from "zod";
 
-const COOKIE = "aurelia_favs";
+const COOKIE = "ascendyl_favs";
 
 function read(): string[] {
   const raw = cookies().get(COOKIE)?.value;

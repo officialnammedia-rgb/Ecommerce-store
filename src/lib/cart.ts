@@ -3,7 +3,7 @@ import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 
-const GUEST_COOKIE = "aurelia_guest_cart";
+const GUEST_COOKIE = "ascendyl_guest_cart";
 
 /**
  * Read-only cart fetch — safe to call from server components.

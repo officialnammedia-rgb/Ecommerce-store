@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   }
 
   const jar = cookies();
-  let sessionId = jar.get("aurelia_sid")?.value;
+  let sessionId = jar.get("ascendyl_sid")?.value;
   const hdrs = headers();
 
   const response = NextResponse.json({ ok: true });
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
   if (!sessionId) {
     sessionId = cryptoRandom();
     // 30-day anonymous session for visitor analytics.
-    response.cookies.set("aurelia_sid", sessionId, {
+    response.cookies.set("ascendyl_sid", sessionId, {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",

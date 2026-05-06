@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-const COOKIE = "aurelia_favs";
+const COOKIE = "ascendyl_favs";
 
 export function readFavoriteIds(): string[] {
   const raw = cookies().get(COOKIE)?.value;

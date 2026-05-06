@@ -1,4 +1,4 @@
-// Prisma schema — Aurelia clothing store
+// Prisma schema — Ascendyl clothing store
 // Provider is SQLite for fast local dev. To switch to Postgres for prod:
 // 1) change provider to "postgresql"
 // 2) update DATABASE_URL

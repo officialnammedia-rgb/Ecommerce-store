@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getOrCreateCart, cartTotals } from "@/lib/cart";
 import { validateAndComputeDiscount } from "@/lib/discounts";
 
-const COOKIE = "aurelia_coupon";
+const COOKIE = "ascendyl_coupon";
 
 export async function applyCouponAction(formData: FormData) {
   const code = String(formData.get("code") ?? "").trim();

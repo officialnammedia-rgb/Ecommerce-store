@@ -39,7 +39,7 @@ export async function uploadImageToCloudinary(
     throw new Error("Cloudinary is not configured");
   }
 
-  const folder = process.env.CLOUDINARY_FOLDER || "aurelia/products";
+  const folder = process.env.CLOUDINARY_FOLDER || "ascendyl/products";
 
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(

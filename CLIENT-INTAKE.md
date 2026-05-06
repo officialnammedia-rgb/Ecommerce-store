@@ -1,4 +1,4 @@
-# Client Intake Form — Aurelia / Your Brand
+# Client Intake Form — Ascendyl / Your Brand
 
 Hi! To launch your store, I need the information below. **Reply inline in this document** — fill in each blank, then send it back. I'll plug everything in and you'll be ready to deploy.
 

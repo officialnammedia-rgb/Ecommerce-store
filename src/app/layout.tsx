@@ -8,8 +8,8 @@ import { VisitorPing } from "@/components/site/VisitorPing";
 
 export const metadata: Metadata = {
   title: {
-    default: process.env.STORE_NAME ?? "Aurelia",
-    template: `%s | ${process.env.STORE_NAME ?? "Aurelia"}`,
+    default: process.env.STORE_NAME ?? "Ascendyl",
+    template: `%s | ${process.env.STORE_NAME ?? "Ascendyl"}`,
   },
   description: "Modern clothing store",
 };

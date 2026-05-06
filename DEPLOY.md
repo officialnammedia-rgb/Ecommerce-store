@@ -1,4 +1,4 @@
-# Deployment runbook — Aurelia store
+# Deployment runbook — Ascendyl store
 
 This walks you from "code on my laptop" to "live store on the internet" in about
 **60–90 minutes**, assuming you don't get stuck on KYC.
@@ -36,7 +36,7 @@ You'll create a fresh migration against Postgres in step 3.
 
 ## 2. Provision Neon database (5 min)
 
-1. In Neon dashboard → **New project** → name it `aurelia-prod`.
+1. In Neon dashboard → **New project** → name it `ascendyl-prod`.
 2. Region: **AWS ap-south-1 (Mumbai)**.
 3. Copy the **pooled connection string** (looks like `postgresql://user:pass@xxx.neon.tech/dbname?sslmode=require`).
 
@@ -84,12 +84,12 @@ Make sure `.env`, `prisma/dev.db*` are in `.gitignore` (they already are).
 | `NEXTAUTH_SECRET` | A long random string | Run: `openssl rand -base64 32` |
 | `NEXTAUTH_URL` | https://your-domain.com | Your custom domain |
 | `STORE_BASE_URL` | https://your-domain.com | Same as above |
-| `STORE_NAME` | Aurelia | Or your brand name |
+| `STORE_NAME` | Ascendyl | Or your brand name |
 | `RAZORPAY_KEY_ID` | rzp_live_xxx | Razorpay dashboard → API Keys |
 | `RAZORPAY_KEY_SECRET` | xxx | Razorpay dashboard |
 | `RAZORPAY_WEBHOOK_SECRET` | xxx | Razorpay → Webhooks → Add new |
 | `RESEND_API_KEY` | re_xxx | Resend dashboard |
-| `EMAIL_FROM` | Aurelia <hi@your-domain.com> | Use a verified domain in Resend |
+| `EMAIL_FROM` | Ascendyl <hi@your-domain.com> | Use a verified domain in Resend |
 
 ### Optional but recommended
 

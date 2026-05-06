@@ -53,7 +53,7 @@ export function RazorpayCheckout({
       amount,
       currency,
       order_id: razorpayOrderId,
-      name: process.env.NEXT_PUBLIC_STORE_NAME ?? "Aurelia",
+      name: process.env.NEXT_PUBLIC_STORE_NAME ?? "Ascendyl",
       description: `Order ${orderNumber}`,
       prefill: {
         name: prefill.name ?? undefined,

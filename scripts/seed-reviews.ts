@@ -16,24 +16,24 @@ type FakeReviewer = { name: string; email: string };
 // Pool of believable Indian reviewer names. We create these once as shadow
 // users (CUSTOMER role, random password, can be ignored in admin).
 const REVIEWERS: FakeReviewer[] = [
-  { name: "Ananya Sharma", email: "ananya.sharma+r@aurelia.local" },
-  { name: "Rohan Mehta", email: "rohan.mehta+r@aurelia.local" },
-  { name: "Priya Iyer", email: "priya.iyer+r@aurelia.local" },
-  { name: "Aditya Verma", email: "aditya.verma+r@aurelia.local" },
-  { name: "Isha Kapoor", email: "isha.kapoor+r@aurelia.local" },
-  { name: "Kabir Nair", email: "kabir.nair+r@aurelia.local" },
-  { name: "Sneha Reddy", email: "sneha.reddy+r@aurelia.local" },
-  { name: "Arjun Singh", email: "arjun.singh+r@aurelia.local" },
-  { name: "Neha Bhat", email: "neha.bhat+r@aurelia.local" },
-  { name: "Vikram Joshi", email: "vikram.joshi+r@aurelia.local" },
-  { name: "Meera Das", email: "meera.das+r@aurelia.local" },
-  { name: "Rahul Pillai", email: "rahul.pillai+r@aurelia.local" },
-  { name: "Tanvi Khanna", email: "tanvi.khanna+r@aurelia.local" },
-  { name: "Siddharth Roy", email: "siddharth.roy+r@aurelia.local" },
-  { name: "Pooja Menon", email: "pooja.menon+r@aurelia.local" },
-  { name: "Dev Patel", email: "dev.patel+r@aurelia.local" },
-  { name: "Riya Agarwal", email: "riya.agarwal+r@aurelia.local" },
-  { name: "Aryan Gupta", email: "aryan.gupta+r@aurelia.local" },
+  { name: "Ananya Sharma", email: "ananya.sharma+r@ascendyl.local" },
+  { name: "Rohan Mehta", email: "rohan.mehta+r@ascendyl.local" },
+  { name: "Priya Iyer", email: "priya.iyer+r@ascendyl.local" },
+  { name: "Aditya Verma", email: "aditya.verma+r@ascendyl.local" },
+  { name: "Isha Kapoor", email: "isha.kapoor+r@ascendyl.local" },
+  { name: "Kabir Nair", email: "kabir.nair+r@ascendyl.local" },
+  { name: "Sneha Reddy", email: "sneha.reddy+r@ascendyl.local" },
+  { name: "Arjun Singh", email: "arjun.singh+r@ascendyl.local" },
+  { name: "Neha Bhat", email: "neha.bhat+r@ascendyl.local" },
+  { name: "Vikram Joshi", email: "vikram.joshi+r@ascendyl.local" },
+  { name: "Meera Das", email: "meera.das+r@ascendyl.local" },
+  { name: "Rahul Pillai", email: "rahul.pillai+r@ascendyl.local" },
+  { name: "Tanvi Khanna", email: "tanvi.khanna+r@ascendyl.local" },
+  { name: "Siddharth Roy", email: "siddharth.roy+r@ascendyl.local" },
+  { name: "Pooja Menon", email: "pooja.menon+r@ascendyl.local" },
+  { name: "Dev Patel", email: "dev.patel+r@ascendyl.local" },
+  { name: "Riya Agarwal", email: "riya.agarwal+r@ascendyl.local" },
+  { name: "Aryan Gupta", email: "aryan.gupta+r@ascendyl.local" },
 ];
 
 // Mix of 4★ and 5★ templates (avg ~4.6 — believable, not suspicious).
@@ -91,7 +91,7 @@ const TEMPLATES: Array<{ rating: number; title: string; body: string }> = [
   {
     rating: 5,
     title: "Recommended",
-    body: "Second order from Aurelia and both times the quality has been consistent. Shipping was quick too.",
+    body: "Second order from Ascendyl and both times the quality has been consistent. Shipping was quick too.",
   },
   {
     rating: 5,

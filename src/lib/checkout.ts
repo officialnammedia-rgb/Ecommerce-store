@@ -47,7 +47,7 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
   }
 
   const { subtotal } = cartTotals(cart);
-  const couponCode = cookies().get("aurelia_coupon")?.value ?? null;
+  const couponCode = cookies().get("ascendyl_coupon")?.value ?? null;
   let discountAmount = 0;
   let appliedCode: string | null = null;
   if (couponCode) {
@@ -197,7 +197,7 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
 
   if (appliedCode) {
     await consumeDiscount(appliedCode);
-    cookies().delete("aurelia_coupon");
+    cookies().delete("ascendyl_coupon");
   }
 
   if (provider.id === "RAZORPAY") {

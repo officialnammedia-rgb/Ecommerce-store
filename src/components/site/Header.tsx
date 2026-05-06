@@ -147,7 +147,7 @@ const NAV: MegaMenuItem[] = [
 ];
 
 export async function Header() {
-  const storeName = process.env.STORE_NAME ?? "Aurelia";
+  const storeName = process.env.STORE_NAME ?? "Ascendyl";
   const [cart, session] = await Promise.all([readCart(), getSession()]);
   const itemCount = cart ? cartTotals(cart).itemCount : 0;
   const isAdmin = isAdminRole(session?.user?.role);
