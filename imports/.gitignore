@@ -1,0 +1,6 @@
+*.csv
+*.xml
+*.json
+logs/
+!README.md
+!HOW_TO_IMPORT_FROM_WOOCOMMERCE.md

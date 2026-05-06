@@ -17,7 +17,9 @@
     "db:reset": "prisma migrate reset --force",
     "set-role": "tsx scripts/set-role.ts",
     "pages:seed": "tsx scripts/seed-pages.ts",
-    "reviews:seed": "tsx scripts/seed-reviews.ts"
+    "reviews:seed": "tsx scripts/seed-reviews.ts",
+    "import:woo": "tsx scripts/import-woo.ts",
+    "import:woo-api": "tsx scripts/import-woo-api.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
