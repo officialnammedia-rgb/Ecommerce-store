@@ -9,7 +9,7 @@ type SendInput = {
 
 export async function sendEmail({ to, subject, html, text }: SendInput) {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM ?? "Store <noreply@example.com>";
+  const from = process.env.EMAIL_FROM ?? "Ascendyl <Ascendyl204@gmail.com>";
   if (!apiKey) {
     // Dev fallback
     // eslint-disable-next-line no-console

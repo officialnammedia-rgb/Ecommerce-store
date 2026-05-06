@@ -5,22 +5,25 @@
 import { prisma } from "../src/lib/prisma";
 
 const STORE_NAME = process.env.STORE_NAME ?? "Ascendyl";
-const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL ?? "support@ascendyl.test";
+const LEGAL_NAME = process.env.STORE_LEGAL_NAME ?? "Ascendyl Solutions Private Limited";
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL ?? "Ascendyl204@gmail.com";
+const SUPPORT_PHONE = process.env.SUPPORT_PHONE ?? "+91 7037638457";
 const COMPANY_ADDR =
-  process.env.STORE_ADDRESS ?? "Ascendyl Retail Pvt. Ltd., Mumbai, Maharashtra 400001, India";
+  process.env.STORE_ADDRESS ??
+  `${LEGAL_NAME}, Office No 206, Plot No 1, 2nd Floor, Ambar Tower, Naniwala Bagh, Azadpur, North West Delhi, Delhi - 110033`;
 
 const PAGES: { slug: string; title: string; body: string }[] = [
   {
     slug: "about",
     title: "About us",
-    body: `${STORE_NAME} is a homegrown Indian clothing label crafting considered, everyday pieces — designed in India, made to move with you.
+    body: `${STORE_NAME} is a homegrown Indian clothing label by ${LEGAL_NAME}, crafting considered, everyday pieces designed for the way you actually live.
 
 We started with one belief: clothing should feel as good as it looks. Every cut, every fabric, every stitch is chosen for comfort, durability, and a quiet kind of confidence that lasts beyond the season.
 
 Our process
-• Fabrics — breathable cottons, soft linens, premium blends, ethically sourced wherever possible.
+• Fabrics — breathable cottons, soft linens and premium blends, sourced responsibly.
 • Fit — tested across body types, designed to flatter without compromise.
-• Process — small-batch, low-waste production with partner units across Maharashtra & Tamil Nadu.
+• Process — small-batch production, low-waste cuts, and quality checks on every piece before it ships.
 
 Why we exist
 We believe great style shouldn't cost the earth — financially or environmentally. We keep operations lean, work directly with manufacturers, and pass the savings to you.
@@ -34,17 +37,16 @@ Thanks for being here.`,
 
 Customer support
 Email: ${SUPPORT_EMAIL}
-Phone: +91 22 1234 5678 (Mon–Sat, 10:00 – 18:00 IST)
-WhatsApp: +91 99999 88888 (chat only)
+Phone / WhatsApp: ${SUPPORT_PHONE} (Mon–Sat, 10:00 – 18:00 IST)
 
-Wholesale & press
-Email: hello@ascendyl.test
+Wholesale & partnerships
+Email: ${SUPPORT_EMAIL}
 
 Registered office
 ${COMPANY_ADDR}
 
 Order help
-For order-related questions, please include your order number (e.g. AUR-XXXXXXXX-XXXX) when writing in. You can also see your order status at /account.`,
+For order-related questions, please include your order number (e.g. ASC-XXXXXXXX-XXXX) when writing in. You can also see your order status at /account.`,
   },
   {
     slug: "faq",
@@ -157,14 +159,14 @@ Damaged / wrong item
 If you received a damaged or wrong item, email ${SUPPORT_EMAIL} within 48 hours with photos. We'll arrange free replacement or full refund.
 
 Contact
-${SUPPORT_EMAIL} · +91 22 1234 5678`,
+${SUPPORT_EMAIL} · ${SUPPORT_PHONE}`,
   },
   {
     slug: "terms",
     title: "Terms & conditions",
     body: `Last updated: ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
 
-By accessing and using ${STORE_NAME} (the "Site"), you agree to these Terms.
+By accessing and using ${STORE_NAME} (the "Site"), operated by ${LEGAL_NAME}, you agree to these Terms.
 
 1. Eligibility
 You must be 18+ to make a purchase. If you are under 18, please use the Site under the supervision of a parent or guardian.
@@ -197,13 +199,13 @@ You agree not to use the Site for any unlawful purpose, attempt to bypass securi
 ${STORE_NAME} is not liable for indirect, incidental, special, or consequential damages arising from use of the Site or products purchased on it.
 
 11. Governing law & jurisdiction
-These Terms are governed by the laws of India. Any disputes are subject to the exclusive jurisdiction of courts in Mumbai, Maharashtra.
+These Terms are governed by the laws of India. Any disputes are subject to the exclusive jurisdiction of courts in Delhi.
 
 12. Changes
 We may update these Terms at any time. Continued use of the Site after changes constitutes acceptance.
 
 13. Contact
-${SUPPORT_EMAIL}
+${SUPPORT_EMAIL} · ${SUPPORT_PHONE}
 ${COMPANY_ADDR}`,
   },
   {
@@ -211,7 +213,7 @@ ${COMPANY_ADDR}`,
     title: "Privacy policy",
     body: `Last updated: ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
 
-${STORE_NAME} ("we", "us", "our") respects your privacy. This policy explains what we collect, how we use it, and your rights.
+${STORE_NAME}, operated by ${LEGAL_NAME} ("we", "us", "our"), respects your privacy. This policy explains what we collect, how we use it, and your rights.
 
 What we collect
 • Identity & contact: name, email, phone, shipping/billing address.
@@ -269,6 +271,9 @@ Strictly necessary
 • Wishlist (ascendyl_favs)
 These cannot be turned off — the Site won't work without them.
 
+Data controller
+${LEGAL_NAME}, ${COMPANY_ADDR}. Contact: ${SUPPORT_EMAIL}.
+
 Performance & analytics
 With your consent, we use analytics to understand how the Site is used. You can opt out via your browser.
 
@@ -315,57 +320,46 @@ Tip: between sizes, size up for a relaxed fit, size down for a tailored fit.`,
     body: `We're a small team trying to do better, every season. Here's where we are.
 
 Materials
-• 60%+ of our cotton is BCI-certified.
-• 100% of our linen is OEKO-TEX certified.
-• We do not use leather, fur, or virgin polyester in new collections (2026+).
+• Cotton sourced from responsible suppliers wherever possible.
+• Preference for OEKO-TEX certified linens and blends.
+• We avoid leather, fur, and virgin polyester in new collections.
 
 Production
 • Small-batch runs to limit overproduction.
-• Surplus fabric reused in trims, totes, and packaging filler.
-• Partner units audited annually for fair-wage compliance.
+• Surplus fabric reused in trims and packaging filler.
+• Partner units reviewed for fair-wage compliance.
 
 Packaging
 • 100% recyclable mailers (FSC-certified paper).
 • No single-use plastics in packaging.
 
 What's next
-• Carbon-offset shipping by 2027.
-• Closed-loop recycling pilot (Mumbai) by end of 2026.
+• Carbon-offset shipping in the near future.
+• Closed-loop recycling pilots with our partner units.
 
-We don't claim to be perfect. We share annual progress reports — write to us at ${SUPPORT_EMAIL} to receive them.`,
+We don't claim to be perfect. We share progress updates — write to us at ${SUPPORT_EMAIL} to receive them.`,
   },
   {
     slug: "careers",
     title: "Careers",
     body: `We're a small, ambitious team building a better Indian clothing brand from the ground up. We hire for craft, ownership, and care.
 
-Open roles
-• Senior product designer (apparel) — Mumbai, hybrid
-• Performance marketing manager — Mumbai
-• Customer experience associate — Mumbai
-• Backend engineer — remote (India)
+We don't have any open roles right now, but we're always happy to hear from talented people in design, merchandising, marketing, customer experience, and engineering.
 
 How to apply
-Email careers@ascendyl.test with your CV and a short note on why you're a fit. We respond to every application within 2 weeks.
+Email ${SUPPORT_EMAIL} with the subject "Careers — [your role]", your CV, and a short note on why you'd be a fit. We respond to every application we can.
 
 What we offer
-• Competitive salary + ESOPs from day one
-• Health insurance for you and immediate family
-• Learning budget (₹50,000 / year)
-• Flexible hours, generous time off
-• A team that argues kindly and ships often`,
+• Honest, growth-stage work with real ownership
+• A team that argues kindly and ships often
+• Flexible hours and generous time off`,
   },
   {
     slug: "press",
     title: "Press",
-    body: `For press inquiries, partnerships, and image requests, contact press@ascendyl.test.
+    body: `For press inquiries, partnerships, and image requests, contact ${SUPPORT_EMAIL}.
 
-Press kit available on request: logo files (SVG/PNG), founder photos, lookbook, brand story.
-
-Recent features
-• Vogue India — "The new wave of homegrown labels" (2025)
-• ELLE — "Stylish minimalism, made in India" (2025)
-• YourStory — "Ascendyl's lean approach to D2C apparel" (2024)`,
+Press kit available on request: logo files (SVG/PNG), product imagery, brand story.`,
   },
 ];
 
