@@ -51,17 +51,17 @@ export default async function CartPage() {
   });
 
   return (
-    <div className="container py-10 grid lg:grid-cols-3 gap-10">
+    <div className="container py-6 sm:py-10 grid lg:grid-cols-3 gap-6 lg:gap-10">
       <div className="lg:col-span-2">
         <h1 className="text-2xl font-semibold">Your cart</h1>
-        <ul className="mt-6 divide-y border-t border-b">
+        <ul className="mt-4 sm:mt-6 divide-y border-t border-b">
           {rows.map((r) => (
             <CartItemRow key={r.id} item={r} />
           ))}
         </ul>
       </div>
 
-      <aside className="bg-neutral-50 rounded-lg p-6 h-fit space-y-4">
+      <aside className="bg-neutral-50 rounded-lg p-4 sm:p-6 h-fit space-y-4">
         <h2 className="font-semibold">Summary</h2>
         <FreeShippingBar subtotal={subtotal} />
         <CouponForm appliedCode={discountResult?.ok ? discountResult.discount.code : null} />

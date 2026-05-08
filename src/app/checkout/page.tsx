@@ -52,7 +52,7 @@ export default async function CheckoutPage() {
   const grandTotal = subtotalAfterDiscount + shippingTotal + taxTotal;
 
   return (
-    <div className="container py-10 grid lg:grid-cols-3 gap-10">
+    <div className="container py-6 sm:py-10 grid lg:grid-cols-3 gap-6 lg:gap-10">
       <div className="lg:col-span-2">
         <CheckoutForm
           providers={providers.map((p) => ({ id: p.id, label: p.label }))}

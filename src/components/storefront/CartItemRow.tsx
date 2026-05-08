@@ -75,15 +75,18 @@ export function CartItemRow({ item }: { item: CartRowItem }) {
   const atCap = qty >= item.inventoryQty;
 
   return (
-    <li className="py-4 flex gap-4">
-      <div className="w-24 h-28 bg-neutral-100 rounded overflow-hidden">
+    <li className="py-4 flex gap-3 sm:gap-4">
+      <div className="w-20 h-24 sm:w-24 sm:h-28 bg-neutral-100 rounded overflow-hidden flex-shrink-0">
         {item.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={item.imageUrl} alt={item.productTitle} className="w-full h-full object-cover" />
         ) : null}
       </div>
-      <div className="flex-1">
-        <Link href={`/products/${item.productSlug}`} className="font-medium hover:underline">
+      <div className="flex-1 min-w-0">
+        <Link
+          href={`/products/${item.productSlug}`}
+          className="font-medium hover:underline line-clamp-2"
+        >
           {item.productTitle}
         </Link>
         {item.variantOptions && (
@@ -96,7 +99,7 @@ export function CartItemRow({ item }: { item: CartRowItem }) {
             Only {item.inventoryQty} left
           </div>
         )}
-        <div className="mt-3 flex items-center gap-3">
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
           <div className="inline-flex items-center border border-neutral-300 rounded-md overflow-hidden">
             <button
               type="button"
@@ -125,15 +128,15 @@ export function CartItemRow({ item }: { item: CartRowItem }) {
             size="sm"
             onClick={remove}
             disabled={pending}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="text-red-600 hover:text-red-700 hover:bg-red-50 px-2"
           >
-            <Trash2 className="h-4 w-4 mr-1" />
-            Remove
+            <Trash2 className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Remove</span>
           </Button>
         </div>
         {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
       </div>
-      <div className="text-right font-medium">
+      <div className="text-right font-medium whitespace-nowrap flex-shrink-0">
         {formatINR(item.priceSnapshot * qty)}
       </div>
     </li>

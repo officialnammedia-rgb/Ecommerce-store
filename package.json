@@ -19,7 +19,9 @@
     "pages:seed": "tsx scripts/seed-pages.ts",
     "reviews:seed": "tsx scripts/seed-reviews.ts",
     "import:woo": "tsx scripts/import-woo.ts",
-    "import:woo-api": "tsx scripts/import-woo-api.ts"
+    "import:woo-api": "tsx scripts/import-woo-api.ts",
+    "generate:men": "tsx scripts/generate-men-catalog.ts",
+    "fix:collections": "tsx scripts/fix-collections.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -38,7 +38,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 
   return (
     <section className="relative">
-      <div className="relative h-[420px] md:h-[560px] overflow-hidden">
+      <div className="relative h-[460px] md:h-[560px] overflow-hidden">
         {slides.map((s, i) => (
           <div
             key={i}
@@ -50,28 +50,70 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
             )}
             aria-hidden={i !== index}
           >
-            <div className="grid md:grid-cols-2 h-full">
+            {/* ---------- Mobile layout: full-bleed image with text overlay ---------- */}
+            <div className="md:hidden relative h-full">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={s.image}
+                alt={s.title}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              {/* Bottom-up gradient for legibility regardless of slide accent. */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/40 to-black/10" />
+              <div className="relative h-full flex items-end">
+                <div className="container py-8 text-white">
+                  <p className="text-[11px] uppercase tracking-[0.25em] text-white/85">
+                    {s.eyebrow}
+                  </p>
+                  <h1 className="mt-3 text-3xl sm:text-4xl font-semibold leading-[1.08] max-w-md">
+                    {s.title}
+                  </h1>
+                  <p className="mt-3 text-sm text-white/90 max-w-md">
+                    {s.subtitle}
+                  </p>
+                  <div className="mt-5 flex flex-wrap items-center gap-2.5">
+                    <Link
+                      href={s.ctaHref}
+                      className="inline-flex items-center justify-center rounded-full bg-white text-neutral-900 px-6 py-2.5 text-sm font-semibold hover:bg-neutral-100 transition"
+                    >
+                      {s.ctaText}
+                    </Link>
+                    {s.secondaryHref && s.secondaryText && (
+                      <Link
+                        href={s.secondaryHref}
+                        className="inline-flex items-center justify-center rounded-full border border-white/50 text-white px-5 py-2.5 text-sm font-semibold hover:bg-white/10 transition"
+                      >
+                        {s.secondaryText}
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ---------- Desktop layout: side-by-side accent + image ---------- */}
+            <div className="hidden md:grid md:grid-cols-2 h-full">
               <div className={cn("flex items-center", s.accent)}>
                 <div
                   className={cn(
-                    "container max-w-xl py-12 md:py-0",
+                    "container max-w-xl",
                     s.textOnDark ? "text-white" : "text-neutral-900",
                   )}
                 >
                   <p
                     className={cn(
-                      "text-xs md:text-sm uppercase tracking-[0.25em]",
+                      "text-sm uppercase tracking-[0.25em]",
                       s.textOnDark ? "text-white/80" : "text-brand-accent",
                     )}
                   >
                     {s.eyebrow}
                   </p>
-                  <h1 className="mt-4 text-4xl md:text-6xl font-semibold leading-[1.05]">
+                  <h1 className="mt-4 text-6xl font-semibold leading-[1.05]">
                     {s.title}
                   </h1>
                   <p
                     className={cn(
-                      "mt-5 max-w-md text-base md:text-lg",
+                      "mt-5 max-w-md text-lg",
                       s.textOnDark ? "text-white/85" : "text-neutral-600",
                     )}
                   >
@@ -105,7 +147,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                   </div>
                 </div>
               </div>
-              <div className="relative h-64 md:h-full">
+              <div className="relative h-full">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={s.image}

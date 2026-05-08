@@ -23,3 +23,8 @@ public/uploads/*
 .DS_Store
 *.log
 .vercel
+tsconfig.tsbuildinfo
+
+# editor / agent local files
+.agents/
+skills-lock.json
