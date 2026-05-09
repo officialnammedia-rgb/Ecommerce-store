@@ -64,7 +64,7 @@ export default async function CheckoutPage() {
         />
       </div>
 
-      <aside className="bg-neutral-50 rounded-lg p-6 h-fit">
+      <aside className="bg-neutral-50 rounded-lg p-4 sm:p-6 h-fit">
         <h2 className="font-semibold">Order summary</h2>
         <ul className="mt-3 divide-y text-sm">
           {cart.items.map((item) => {
@@ -88,7 +88,7 @@ export default async function CheckoutPage() {
                   </p>
                   <p className="text-xs text-neutral-500">Qty {item.quantity}</p>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex-shrink-0 pl-2">
                   {formatINR(item.priceSnapshot * item.quantity)}
                 </div>
               </li>

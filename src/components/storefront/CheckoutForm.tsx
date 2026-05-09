@@ -237,8 +237,8 @@ export function CheckoutForm({
     <form onSubmit={onSubmit} className="space-y-6">
       <h1 className="text-2xl font-semibold">Checkout</h1>
 
-      <fieldset className="space-y-3 bg-white border rounded-lg p-4 sm:p-5">
-        <legend className="px-2 font-medium">Contact</legend>
+      <section className="space-y-3 bg-white border rounded-lg p-4 sm:p-5">
+        <h2 className="font-medium text-base">Contact</h2>
         <div>
           <label className="text-sm font-medium">Email</label>
           <Input name="email" type="email" required defaultValue={defaultEmail} />
@@ -268,10 +268,10 @@ export function CheckoutForm({
             </p>
           )}
         </div>
-      </fieldset>
+      </section>
 
-      <fieldset className="space-y-3 bg-white border rounded-lg p-4 sm:p-5">
-        <legend className="px-2 font-medium">Shipping address</legend>
+      <section className="space-y-3 bg-white border rounded-lg p-4 sm:p-5">
+        <h2 className="font-medium text-base">Shipping address</h2>
 
         {savedAddresses.length > 0 && (
           <div className="space-y-2">
@@ -445,11 +445,11 @@ export function CheckoutForm({
             )}
           </>
         )}
-      </fieldset>
+      </section>
 
       {!isLoggedIn && (
-        <fieldset className="space-y-3 bg-white border rounded-lg p-4 sm:p-5">
-          <legend className="px-2 font-medium">Speed up next time</legend>
+        <section className="space-y-3 bg-white border rounded-lg p-4 sm:p-5">
+          <h2 className="font-medium text-base">Speed up next time</h2>
           <label className="flex items-start gap-2 text-sm cursor-pointer">
             <input
               type="checkbox"
@@ -481,11 +481,11 @@ export function CheckoutForm({
               </p>
             </div>
           )}
-        </fieldset>
+        </section>
       )}
 
-      <fieldset className="space-y-2 bg-white border rounded-lg p-4 sm:p-5">
-        <legend className="px-2 font-medium">Payment</legend>
+      <section className="space-y-2 bg-white border rounded-lg p-4 sm:p-5">
+        <h2 className="font-medium text-base">Payment</h2>
         {providers.map((p) => (
           <label
             key={p.id}
@@ -500,17 +500,17 @@ export function CheckoutForm({
             <span className="text-sm font-medium">{p.label}</span>
           </label>
         ))}
-      </fieldset>
+      </section>
 
-      <fieldset className="space-y-2 bg-white border rounded-lg p-4 sm:p-5">
-        <legend className="px-2 font-medium">Order notes (optional)</legend>
+      <section className="space-y-2 bg-white border rounded-lg p-4 sm:p-5">
+        <h2 className="font-medium text-base">Order notes (optional)</h2>
         <textarea
           name="notes"
           rows={3}
           className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
           placeholder="Any special instructions..."
         />
-      </fieldset>
+      </section>
 
       <Button type="submit" size="lg" className="w-full" disabled={pending}>
         {pending ? "Placing order..." : `Place order · ${formatINR(grandTotal)}`}
