@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
+import { siteUrl } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.STORE_BASE_URL ?? "http://localhost:3000";
+  const base = siteUrl();
   const [products, collections, pages] = await Promise.all([
     prisma.product.findMany({
       where: { status: "ACTIVE" },
@@ -15,9 +16,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   ]);
 
+  // Curated, high-priority entry points. Collection-by-slug entries below also
+  // cover these, but listing them explicitly with higher priority signals
+  // search engines that these are the main browse buckets.
   const staticUrls: MetadataRoute.Sitemap = [
     { url: `${base}/`, changeFrequency: "daily", priority: 1 },
     { url: `${base}/collections/all`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${base}/collections/new`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${base}/collections/women`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${base}/collections/men`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${base}/collections/sale`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${base}/contact`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${base}/search`, changeFrequency: "weekly", priority: 0.5 },
   ];
   const productUrls = products.map((p) => ({

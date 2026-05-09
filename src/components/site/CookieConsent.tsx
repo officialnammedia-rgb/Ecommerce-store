@@ -28,6 +28,14 @@ export function CookieConsent() {
     } catch {
       /* noop */
     }
+    // Notify analytics (or any other consent-gated client) about the change.
+    try {
+      window.dispatchEvent(
+        new CustomEvent("ascendyl:consent", { detail: value }),
+      );
+    } catch {
+      /* noop */
+    }
     setShow(false);
   }
 

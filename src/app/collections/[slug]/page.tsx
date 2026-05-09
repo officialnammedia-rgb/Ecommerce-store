@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import { CollectionToolbar } from "@/components/storefront/CollectionToolbar";
+import { siteName } from "@/lib/site";
 import {
   parseFilters,
   variantWhere,
@@ -14,6 +16,45 @@ import {
 // ISR: collection listings update when the admin reshuffles products; 60s is
 // plenty for merchandising and keeps pages snappy.
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
+  const NAME = siteName();
+  if (params.slug === "all") {
+    return {
+      title: "All products",
+      description: `Browse every piece in the ${NAME} catalog. Find dresses, tops, jeans, t-shirts and more from women's and men's collections.`,
+      alternates: { canonical: "/collections/all" },
+    };
+  }
+  const c = await prisma.collection.findUnique({
+    where: { slug: params.slug },
+    select: { title: true, description: true },
+  });
+  if (!c) return {};
+  const description =
+    c.description ??
+    `Shop the ${c.title} edit at ${NAME}. Modern, breathable everyday clothing — ships across India.`;
+  return {
+    title: c.title,
+    description,
+    alternates: { canonical: `/collections/${params.slug}` },
+    openGraph: {
+      type: "website",
+      title: `${c.title} | ${NAME}`,
+      description,
+      url: `/collections/${params.slug}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${c.title} | ${NAME}`,
+      description,
+    },
+  };
+}
 
 const HEROES: Record<string, { title: string; subtitle: string; image: string }> = {
   all: {

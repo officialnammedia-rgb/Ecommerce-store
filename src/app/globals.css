@@ -14,6 +14,9 @@ body {
 
 body {
   @apply bg-white text-neutral-900 antialiased;
+  /* Defensive: prevent any single overflowing element from creating a horizontal
+     scrollbar on mobile, which otherwise makes content look right-cropped. */
+  overflow-x: hidden;
 }
 
 a {

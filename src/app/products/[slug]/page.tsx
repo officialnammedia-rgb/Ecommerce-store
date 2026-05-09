@@ -13,6 +13,7 @@ import { StarRating } from "@/components/ui/StarRating";
 import { isFavorited } from "@/lib/wishlist";
 import { getSession } from "@/lib/session";
 import { formatINR } from "@/lib/utils";
+import { BreadcrumbJsonLd } from "@/components/site/JsonLd";
 
 // ISR: cache product pages for 60s. Inventory/reviews lag by at most 1 minute;
 // good enough for a launch-size catalog and massively faster than hitting DB
@@ -26,12 +27,37 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const product = await prisma.product.findUnique({
     where: { slug: params.slug },
-    select: { title: true, description: true, seoTitle: true, seoDescription: true },
+    select: {
+      title: true,
+      description: true,
+      seoTitle: true,
+      seoDescription: true,
+      images: { take: 1, orderBy: { position: "asc" }, select: { url: true } },
+    },
   });
   if (!product) return {};
+  const title = product.seoTitle ?? product.title;
+  const description =
+    product.seoDescription ?? product.description ?? undefined;
+  const ogImage = product.images[0]?.url;
+  const url = `/products/${params.slug}`;
   return {
-    title: product.seoTitle ?? product.title,
-    description: product.seoDescription ?? product.description ?? undefined,
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url,
+      ...(ogImage ? { images: [{ url: ogImage, alt: product.title }] } : {}),
+    },
+    twitter: {
+      card: ogImage ? "summary_large_image" : "summary",
+      title,
+      description,
+      ...(ogImage ? { images: [ogImage] } : {}),
+    },
   };
 }
 
@@ -253,6 +279,13 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", href: "/" },
+          { name: breadcrumbLabel, href: breadcrumbHref },
+          { name: product.title, href: `/products/${product.slug}` },
+        ]}
       />
     </div>
   );

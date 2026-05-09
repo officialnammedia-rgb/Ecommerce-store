@@ -8,6 +8,7 @@ import { PromoTiles } from "@/components/storefront/PromoTiles";
 import { ValueProps } from "@/components/storefront/ValueProps";
 import { LookbookStrip } from "@/components/storefront/LookbookStrip";
 import { Newsletter } from "@/components/storefront/Newsletter";
+import { OrgJsonLd } from "@/components/site/JsonLd";
 
 // ISR: rebuild the homepage at most once per minute, serve a cached HTML
 // otherwise. Admin edits show up within 60s. This cuts the visitor's page
@@ -112,6 +113,7 @@ export default async function HomePage() {
 
   return (
     <div>
+      <OrgJsonLd />
       <AnnouncementBar />
       <HeroCarousel slides={heroSlides} />
 
