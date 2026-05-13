@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { siteName } from "@/lib/site";
 
 declare global {
   interface Window {
@@ -53,7 +54,7 @@ export function RazorpayCheckout({
       amount,
       currency,
       order_id: razorpayOrderId,
-      name: process.env.NEXT_PUBLIC_STORE_NAME ?? "Ascendyl",
+      name: siteName(),
       description: `Order ${orderNumber}`,
       prefill: {
         name: prefill.name ?? undefined,

@@ -22,13 +22,21 @@ export function siteUrl(): string {
   return trimTrailingSlash(fromEnv);
 }
 
+// Env values we should ignore because they're leftover from a previous
+// Vercel project (the storefront was briefly named differently during setup).
+// If one of these ever comes through, we fall back to the canonical brand so
+// the site name is never wrong while the user updates Vercel.
+const STALE_STORE_NAMES = new Set(["aurelia"]);
+
 /** Display name shown to shoppers (header, OG, emails). */
 export function siteName(): string {
-  return (
+  const raw = (
     process.env.NEXT_PUBLIC_STORE_NAME ||
     process.env.STORE_NAME ||
-    "Ascendyl"
-  );
+    ""
+  ).trim();
+  if (!raw || STALE_STORE_NAMES.has(raw.toLowerCase())) return "Ascendyl";
+  return raw;
 }
 
 /** Default site-wide description used for OG/Twitter and CMS fallbacks. */

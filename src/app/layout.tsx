@@ -46,7 +46,8 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     images: ["/opengraph-image"],
   },
-  icons: { icon: "/favicon.ico" },
+  // No explicit icons entry needed — Next.js auto-wires app/icon.tsx and
+  // app/apple-icon.tsx as the site's favicon + apple-touch-icon.
   robots: {
     index: true,
     follow: true,

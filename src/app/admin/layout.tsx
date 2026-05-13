@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/session";
 import { AdminSidebar } from "@/components/admin/Sidebar";
+import { siteName } from "@/lib/site";
 
 export const metadata = {
   title: "Admin",
@@ -7,7 +8,7 @@ export const metadata = {
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin();
-  const storeName = process.env.STORE_NAME ?? "Ascendyl";
+  const storeName = siteName();
   return (
     <div className="flex min-h-screen bg-neutral-50 md:flex-row flex-col">
       <AdminSidebar storeName={storeName} />

@@ -5,6 +5,7 @@ import { getSession } from "@/lib/session";
 import { isAdminRole } from "@/lib/auth";
 import { MegaMenuNav, type MegaMenuItem } from "./MegaMenuNav";
 import { MobileMenu } from "./MobileMenu";
+import { siteName } from "@/lib/site";
 
 const NAV: MegaMenuItem[] = [
   {
@@ -147,7 +148,7 @@ const NAV: MegaMenuItem[] = [
 ];
 
 export async function Header() {
-  const storeName = process.env.STORE_NAME ?? "Ascendyl";
+  const storeName = siteName();
   const [cart, session] = await Promise.all([readCart(), getSession()]);
   const itemCount = cart ? cartTotals(cart).itemCount : 0;
   const isAdmin = isAdminRole(session?.user?.role);

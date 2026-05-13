@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { siteName } from "@/lib/site";
 
 const COLS: { title: string; links: { label: string; href: string }[] }[] = [
   {
@@ -42,7 +43,7 @@ const COLS: { title: string; links: { label: string; href: string }[] }[] = [
 ];
 
 export function Footer() {
-  const storeName = process.env.STORE_NAME ?? "Ascendyl";
+  const storeName = siteName();
   return (
     <footer className="bg-neutral-950 text-neutral-300 mt-12">
       <div className="container py-14 grid grid-cols-2 md:grid-cols-6 gap-8">
